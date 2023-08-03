@@ -89,10 +89,10 @@
             alert("Connection Established");
             this.show = false;
             SocketioService.setupSocketConnection(this.token);
-            SocketioService.subscribeToMessages((err, data, uname, msgType) => {
-              console.log("Message Reeived", data);
+            SocketioService.subscribeToMessages((err, data,  msgType) => {
+              console.log("Message Received", data);
               if (msgType == "message") {
-                this.messages.push({ txt: data, username: uname });
+                this.messages.push({ txt: data.msg, username: data.userName });
               }
               if (msgType == "startNewChat") {
                 alert("New User has Started a Chat");

@@ -29,7 +29,7 @@ class SocketioService {
 
     this.socket.on('startNewChat', msg => {
       console.log(`New User Join to Room ${msg}`);
-      return cb(null, msg, null, 'startNewChat');
+      return cb(null, msg, 'startNewChat');
     })
   }
 

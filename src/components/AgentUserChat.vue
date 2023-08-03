@@ -1,12 +1,18 @@
 <template>
   <div class="Home">
     <form @submit.prevent="submitToken" v-if="show">
-      <input type="text" placeholder="Enter Name" v-model="form.userName" />
+      <input
+        type="text"
+        placeholder="Enter Name"
+        required
+        v-model="form.userName"
+      />
       <input
         type="radio"
         name="userRole"
         v-model="form.userRole"
         value="Agent"
+        required
       /><label>Agent</label>
       <input
         type="radio"
@@ -14,14 +20,21 @@
         v-model="form.userRole"
         value="Rider"
         title="Rider"
+        required
       /><label>Rider</label>
 
       <button type="submit">Submit</button>
     </form>
     <!-- <h5>{{ roomName }}</h5> -->
-    <h5 v-if="!show">USer Name: {{ form.userName }}</h5>
+    <div class="uname-end-chat">
+      <h5 v-if="!show">User Name: {{ form.userName }}</h5>
+      <b-button v-if="!show" variant="danger">End Chat</b-button>
+    </div>
     <hr />
     <div class="box">
+      <label class="riderName" v-if="form.userRole == 'Agent'">Rider</label>
+      <label class="riderName" v-else>Agent</label>
+      <!-- <div class="uname"></div> -->
       <div class="messages">
         <div id="liveAlertPlaceholder"></div>
         <!-- <div id="liveAlertPlaceholder">
@@ -45,6 +58,7 @@
           placeholder="Type in text....."
           v-model="inputMessageText"
           class="input-box"
+          required
         />
         <button class="submit-btn" type="submit">Submit</button>
       </div>
@@ -56,10 +70,10 @@
 import SocketioService from "../services/socketio.service.js";
 import axios from "axios";
 
-const SENDER = {
-  id: "000",
-  name: "Me",
-};
+// const SENDER = {
+//   id: "000",
+//   name: "Me",
+// };
 export default {
   data() {
     return {
@@ -70,6 +84,8 @@ export default {
         userName: "",
       },
       roomName: "",
+      riderName: "",
+      agentName: "",
       show: true,
     };
   },
@@ -100,21 +116,50 @@ export default {
               );
               let wrapper = document.createElement("div");
               wrapper.innerHTML = [
+                // `<div class="uname">${msg.userName}</div>`,
                 `<div class="receiver">`,
-                `<div class="flex" style="display: flex; align-items: end; justify-content: left;">`,
-                  `<span class="receiver-circle"></span><span class="receiver-name">${ msg.username }</span>`,
-                `</div>`,
+                // `<div class="flex" style="display: flex; align-items: end; justify-content: left;">`,
+                // `<span class="receiver-circle"></span><span class="receiver-name">${msg.userName}</span>`,
+                // `</div>`,
                 `<div class="receive-msg box2 sb1-receive">${msg.msg}</div>`,
-                `</div>`
-              ];
-              alertPlaceholder.prepend(wrapper);
+                `</div>`,
+              ].join("");
+              alertPlaceholder.append(wrapper);
             }
-            
+
+            // if (msgType === "message") {
+            //   let alertPlaceholder = document.getElementById(
+            //     "liveAlertPlaceholder"
+            //   );
+
+            //   // Check if the username div has already been added before
+            //   let usernameDiv = alertPlaceholder.querySelector(".uname");
+
+            //   if (!usernameDiv) {
+            //     // Create the username div if it doesn't exist
+            //     let usernameWrapper = document.createElement("div");
+            //     usernameWrapper.className = "uname";
+            //     usernameWrapper.textContent = msg.userName;
+            //     alertPlaceholder.append(usernameWrapper);
+            //   }
+
+            //   // Create the message div and append it
+            //   let messageWrapper = document.createElement("div");
+            //   messageWrapper.className = "receiver";
+            //   messageWrapper.innerHTML = [
+            //     `<div class="receive-msg box2 sb1-receive">${msg.msg}</div>`,
+            //   ].join("");
+
+            //   alertPlaceholder.append(messageWrapper);
+            // }
 
             if (msgType == "startNewChat") {
               alert("New User has Started a Chat");
-              console.log (msg);
-              this.roomName = msg.msg;
+              console.log(msg);
+              this.roomName = msg;
+              //this.roomName = msg.roomName;
+              //this.riderName = msg.riderName;
+              //this.agentName = msg.agentName;
             }
           });
         }
@@ -127,36 +172,36 @@ export default {
       } else {
         msg = { messagetext: this.inputMessageText };
       }
-      alert(1234);
+      //alert(1234);
       alert(JSON.stringify(msg, this.roomName));
       SocketioService.sendMessage(msg, () => {
         console.log("Message sent", msg);
-        this.messages.push({
-          msg,
-          ...SENDER,
-        });
+        // this.messages.push({
+        //   msg,
+        //   ...SENDER,
+        // });
       });
-      // clear the input after the message is sent
-      this.inputMessageText = "";
-
       let alertPlaceholder = document.getElementById("liveAlertPlaceholder");
       let wrapper = document.createElement("div");
       wrapper.innerHTML = [
+        // `<div class="uname"></div>`,
         `<div class="sender">`,
-        `<div class="flex" style="display: flex; align-items: end; justify-content: right;">`,
-        `<span class="sender-name">Me</span><span class="sender-circle"></span>`,
-        `</div>`,
+        // `<div class="flex" style="display: flex; align-items: end; justify-content: right;">`,
+        // `<span class="sender-name">Me</span><span class="sender-circle"></span>`,
+        // `</div>`,
         `<div class="send-msg box2 sb1-send">${this.inputMessageText}</div>`,
         `</div>`,
       ].join("");
-      alertPlaceholder.prepend(wrapper);
+      alertPlaceholder.append(wrapper);
+      // clear the input after the message is sent
+      this.inputMessageText = "";
     },
   },
 };
 </script>
 
-<style scoped>
-.box {
+<style>
+/* .box {
   background-color: #e5f6ff;
   width: 400px;
   height: 500px;
@@ -298,5 +343,5 @@ export default {
   border-bottom-right-radius: 10px;
   border-top-right-radius: 10px;
   text-align: left;
-}
+} */
 </style>
